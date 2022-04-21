@@ -14,7 +14,7 @@ local default = {
 
 	rooter = {
 		enable = true,
-		patterns = {'.__nvim__.lua', '.git', 'node_modules', '.sln', '.svn'}
+		patterns = {'.__nvim__.lua', '.git', 'node_modules', '.sln', '.svn', 'wwwroot'}
 	},
 
 	-- working on it ...
