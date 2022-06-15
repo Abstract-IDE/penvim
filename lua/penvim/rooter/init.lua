@@ -5,6 +5,9 @@ local funcs = require("penvim.funcs.filedir")
 
 function M.load_rooter()
 	local current_file_dir = vim.fn.expand('%:p:h')
+	if not funcs.file_exists(current_file_dir) then
+		return
+	end
 	local current_file_dir_init = current_file_dir
 	local splited_dir = funcs.dirsplit(current_file_dir)
 	local patterns = vim.g.penvim_rooter_patterns
