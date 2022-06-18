@@ -44,6 +44,7 @@ local default = {
 			'configure.in', --autoconf old style
 			'configure.ac', --autoconf new style
 			'cscope.out', --cscope
+			'go.mod', -- go project
 		}
 	},
 
