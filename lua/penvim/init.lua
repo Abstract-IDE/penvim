@@ -48,11 +48,12 @@ local default = {
 		}
 	},
 
-	-- working on it ...
-	-- indentor = {
-	-- 	enable = true,
-	-- 	lenght = 4
-	-- },
+	-- indentor
+	indentor = {
+		enable = true,
+		indent_length = 4,
+		indent_type = "auto" -- if file is new or it doesn't have any indentation (auto, tab, space)
+	},
 }
 
 
@@ -68,10 +69,10 @@ function M.setup(options)
 	-- rooter default config
 	vim.g.penvim_rooter_enable = default.rooter.enable
 	vim.g.penvim_rooter_patterns = default.rooter.patterns
-
-	-- -- indentor
-	-- vim.g.penvim_indentor_enable = default.indentor.enable
-	-- vim.g.penvim_indentor_length = default.indentor.lenght
+	-- indentor default config
+	vim.g.penvim_indentor_enable = default.indentor.enable
+	vim.g.penvim_indentor_length = default.indentor.indent_length
+	vim.g.penvim_indentor_indent = default.indentor.indent_type
 
 
 	-- overide default options with user-defined options
@@ -109,48 +110,76 @@ function M.setup(options)
 			end
 		end
 
-		-- working on it...
-		-- -- indentor
-		-- if options.indentor ~= nil then
-		-- 	if options.indentor.enable ~= nil then
-		-- 		vim.g.penvim_indentor_enable = options.indentor.enable
-		-- 	end
-		-- 	if options.indentor.lenght ~=nil then
-		-- 		vim.g.penvim_indentor_length = options.indentor.length
-		-- 	end
-		-- end
+		-- indentor
+		if options.indentor ~= nil then
+			if options.indentor.enable ~= nil then
+				vim.g.penvim_indentor_enable = options.indentor.enable
+			end
+			if options.indentor.lenght ~=nil then
+				vim.g.penvim_indentor_length = options.indentor.indent_length
+			end
+			if options.indentor.indent ~=nil then
+				vim.g.penvim_indentor_indent = options.indentor.indent_type
+			end
+		end
 	end
 
+	local group = vim.api.nvim_create_augroup("PenvimAutoGroup", {clear=true})
 
+	-- TODO:
 	-- language
 	---------------------------------------
 	if vim.g.penvim_langs_enable then
-		vim.cmd([[
-			au BufEnter *.*  lua require("penvim.langs").load_langs()
-		]])
+		vim.api.nvim_create_autocmd(
+			"BufEnter",
+			{
+				pattern = "*",
+				group = group,
+				command = "lua require('penvim.langs').load_langs()"
+			}
+		)
 	end
 
 	-- project environment
 	---------------------------------------
 	if vim.g.penvim_project_enable then
-		vim.cmd([[
-			au BufEnter *.*  lua require("penvim.project_env").load_project_config()
-		]])
+		vim.api.nvim_create_autocmd(
+			"BufEnter",
+			{
+				pattern = "*",
+				group = group,
+				command = "lua require('penvim.project_env').load_project_config()"
+			}
+		)
 	end
 
 	-- rooter
 	---------------------------------------
 	if vim.g.penvim_rooter_enable then
-		require("penvim.rooter").load_rooter()
+		vim.api.nvim_create_autocmd(
+			"BufEnter",
+			{
+				pattern = "*",
+				group = group,
+				command = "lua require('penvim.rooter').load_rooter()"
+			}
+		)
 	end
 
-	-- -- working on it....
-	-- -- indentor
-	-- ---------------------------------------
-	-- if vim.g.penvim_indentor_enable then
-	-- 	require("penvim.indentor").load_indentor()
-	-- end
-	--
+	-- TODO:
+	-- indentor
+	---------------------------------------
+	if vim.g.penvim_indentor_enable then
+		vim.api.nvim_create_autocmd(
+			"BufEnter",
+			{
+				pattern = "*",
+				group = group,
+				command = "lua require('penvim.indentor').load_indentor()"
+			}
+		)
+	end
+
 end
 
 
