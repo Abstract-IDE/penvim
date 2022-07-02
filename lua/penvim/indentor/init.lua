@@ -65,7 +65,7 @@ end
 -- end
 
 local function logic()
-	local loc = 1
+	local loc = vim.api.nvim_buf_line_count(buffer_num)
 	local current_line_num, current_line_content, whitespace
 	local next_line_num = current_line_num + 1
 	local stack_tab = 0
