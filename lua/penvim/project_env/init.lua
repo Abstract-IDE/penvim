@@ -9,37 +9,77 @@
          if exist: load .__nvim__.lua config
     NOTE:
         .__nvim__.lua is default config file name and it can be change
-         with 'vim.g.penvim_project_config'
+         with 'vim.g.penvim_project_config' (eg: vim.g.penvim_project_config='config.lua')
 ]]
 
 
 local M= {}
-local funcs = require("penvim.funcs.filedir")
+local filedir = require("penvim.funcs.filedir")
+local str = require("penvim.funcs.string")
+local os_user = filedir.osuser()
+local config_name = vim.g.penvim_project_config -- project_env config name
+local home_con_file = "/home/"..os_user.."/"..config_name
+-- local buff_num = vim.api.nvim_get_current_buf()
+local filetype = vim.bo.filetype
 
-local curr_file_dir = vim.fn.expand('%:p:h') .. "/"
--- your user name ( EX: /home/your_user_name )
-local user_home = "/home/" .. funcs.osuser()
--- project_env config name
-local config_name = vim.g.penvim_project_config
 
+local function conf_file()
+	--[[ if .__nvim__.lua file exist, return it with full location else return false ]]
 
--- if .__nvim__.lua file exist, return it with full location else return false
-local function conf_file(cfdir)
 	local conff
-	-- don't look for .__nvim__.lua if directory is not a chld of /home/user/
-	local os_user = funcs.osuser()
-	if funcs.dirsplit(cfdir)[2] ~= os_user then return false end
+	local curr_file_dir = vim.fn.expand('%:p:h') .. "/"
 
-	for _, _ in ipairs(funcs.dirsplit(cfdir)) do
-		conff = cfdir .. config_name
-		if funcs.file_exists(conff) then
-			return cfdir .. config_name
+	-- if directory is not a child of /home/use_name/ then return home's config file (if exist)
+	if filedir.dirsplit(curr_file_dir)[2] ~= os_user then
+		if filedir.file_exists(home_con_file) then
+			return home_con_file
 		else
-			if cfdir == "/" or cfdir == "/home/" .. os_user .. "/" then
-				return false
-			else
-				cfdir = cfdir .. "../"
-				cfdir = funcs.normalize_dir(cfdir)
+			return false
+		end
+	end
+
+	for _, _ in ipairs(filedir.dirsplit(curr_file_dir)) do
+		conff = curr_file_dir .. config_name
+		if filedir.file_exists(conff) then
+			return curr_file_dir .. config_name
+		else
+			curr_file_dir = filedir.normalize_dir(curr_file_dir.."../")
+		end
+	end
+
+	return false
+end
+
+
+local function apply_config(config)
+	for option, value in pairs(config) do
+        vim.opt[option] = value
+	end
+end
+
+
+local function load_config(config_file)
+
+	local configs = dofile(config_file)
+
+	-- exit if config file is empty
+	if configs == nil then return end
+
+	-- applying defined configs
+	for lang, config in pairs(configs) do
+		if lang == "all" then
+			apply_config(config)
+
+		elseif string.find(lang, "_") then
+			local langs = str.split(lang, "-")
+			for _, lan in pairs(langs) do
+				if lan == filetype then
+					apply_config(config)
+				end
+			end
+		else
+			if lang == filetype then
+				apply_config(config)
 			end
 		end
 	end
@@ -47,18 +87,20 @@ end
 
 
 function M.load_project_config()
-	if funcs.file_exists(user_home .. "/" .. config_name) then
-		dofile(user_home .. "/" .. config_name)
-	end
+	local config_file = conf_file()
 
-	if curr_file_dir ~= "/" and curr_file_dir ~= user_home.."/" then
-		local conff = conf_file(curr_file_dir)
-		if conff ~= false then
-			dofile(conff)
+	-- only load config file if config file exist
+	if config_file then
+		if config_file == home_con_file then
+			load_config(home_con_file)
+		else
+			if filedir.file_exists(home_con_file) then
+				load_config(home_con_file)
+			end
+			load_config(config_file)
 		end
 	end
 end
 
 
 return M
-
