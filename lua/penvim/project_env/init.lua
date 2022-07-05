@@ -16,6 +16,7 @@
 local M= {}
 local filedir = require("penvim.funcs.filedir")
 local str = require("penvim.funcs.string")
+local table = require("penvim.funcs.table")
 local os_user = filedir.osuser()
 local config_name = vim.g.penvim_project_config -- project_env config name
 local home_con_file = "/home/"..os_user.."/"..config_name
@@ -65,8 +66,7 @@ local function load_config(config_file)
 	-- exit if config file is empty
 	if configs == nil then return end
 
-	-- applying defined configs
-	for lang, config in pairs(configs) do
+	for lang, config in table.SyncedTable(configs) do
 		if lang == "all" then
 			apply_config(config)
 
