@@ -42,6 +42,40 @@ This plugin (Penvim) has 4 purposes:
 4. set option according to Language's Standard Style Guide (Working on it...)
 
 
+## Example :
+<details>
+	<summary>
+		load config defined in project's root directory
+	</summary>
+
+```lua
+-- .__nvim__.lua
+return {
+	-- for all file types
+	all = {
+		tabstop = 4, -- spaces per tab
+		cursorline = true, -- highlight current line
+		relativenumber = true, -- show relative line number
+		number = true, -- show line numbers
+	},
+
+	-- for filetype lua
+	lua = {	
+		smarttab = true, -- <tab>/<BS> indent/dedent in leading whitespace
+		softtabstop = 4,
+		shiftwidth = 4, -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+	},
+	
+	-- for filetype python and javascript
+	py_js = {
+		tabstop = 4, -- spaces per tab
+		wrap = false, -- don't automatically wrap on load
+	}
+}
+```
+</details>
+
+
 ## Getting Started
 Install PenVim using your favorite package manager.
 
