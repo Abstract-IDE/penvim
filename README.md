@@ -25,6 +25,7 @@
 ## Table Of Contents
 
 * [About the Project](#about-the-project)
+* [Examples](#examples-)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
@@ -42,7 +43,7 @@ This plugin (Penvim) has 4 purposes:
 4. set option according to Language's Standard Style Guide (Working on it...)
 
 
-## Example :
+## Examples :
 <details>
 	<summary>
 		load config defined in project's root directory
