@@ -42,8 +42,7 @@ function os.capture(cmd, raw)
 	local output = assert(handle:read('*a'))
 	handle:close()
 	if raw then return output end
-	output = string.gsub(string.gsub(string.gsub(output, '^%s+', ''), '%s+$', ''),
-	                     '[\n\r]+', ' ')
+	output = string.gsub(string.gsub(string.gsub(output, '^%s+', ''), '%s+$', ''), '[\n\r]+', ' ')
 	return output
 end
 
@@ -61,10 +60,14 @@ function M.normalize_dir(dir)
 	for _, r in ipairs(split_dir) do
 		table.insert(stack, r)
 		if r == ".." then
-			stack = {table.unpack(stack, 1, #stack-2)}
+			stack = {unpack(stack, 1, #stack-2)}
 		end
 	end
-	return stack .. "/"
+	local str = ""
+	for _, i in ipairs(stack) do
+		str = str .. "/" .. i
+	end
+	return str .. "/"
 end
 
 
