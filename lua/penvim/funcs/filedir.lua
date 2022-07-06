@@ -7,7 +7,7 @@ local M={}
 -- check given path is dir return True else false
 function M.is_dir(path)
 	local file = io.open(path, 'r')
-	local ok, error,  code = file:read(1)
+	local ok, error, code = file:read(1)
 	file:close()
 	return code == 21
 end
@@ -56,8 +56,15 @@ end
 --  normalize dir
 --  /home/user/../user/download/../ --> /home/user
 function M.normalize_dir(dir)
-	local pwd = os.capture("cd " .. dir .. " && pwd")
-	return pwd .. "/"
+	local stack = {}
+	local split_dir = M.dirsplit(dir)
+	for _, r in ipairs(split_dir) do
+		table.insert(stack, r)
+		if r == ".." then
+			stack = {table.unpack(stack, 1, #stack-2)}
+		end
+	end
+	return stack .. "/"
 end
 
 
