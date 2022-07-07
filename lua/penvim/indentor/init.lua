@@ -1,46 +1,16 @@
 
-local M={}
+local M = {}
 
-local default_indent_length = vim.g.penvim_indentor_length -- default 4
-local default_indent_type = vim.g.penvim_indentor_indent   -- default auto,  auto|space|tab
-
--- current buffer number
-local buffer_num = vim.api.nvim_get_current_buf()
-
-function M.load_indentor()
-	-- TODO...
-end
-
--- vim.api.nvim_create_autocmd(
--- 	"BufEnter",
--- 	{
--- 		desc = "don't auto comment new line",
--- 		pattern = "*",
--- 		group = group,
--- 		callback = function ()
--- 			local line = vim.api.nvim_buf_get_lines(0, 0, 2, 1)
--- 			line = vim.inspect(line)
--- 			print(line)
--- 		end
--- 	}
--- )
---
-
--- local function whitespace_count(buff, type, line)
--- 	-- buff=buffer number | type=tab/space | line=line number
--- 	if type == "tab" then
--- 		local math_pattern = "^%\t*"
--- 	else
--- 		local math_pattern = "^%s*"
--- 	end
--- end
 
 local function whitespace_type (line)
 
 	local whitespace = line:match("^%s*"):len()
 	if whitespace == 0 then
-		return 'blank'
+		return {
+			type = "blank",
+		}
 	end
+
 	local tabspace = line:match("^%\t*"):len()
 	if tabspace > 0 then
 		return {
@@ -55,43 +25,85 @@ local function whitespace_type (line)
 	}
 end
 
-local get_lines = function (buff, start, last)
-	vim.api.nvim_buf_get_lines(buff, start, last, {})
-end
 
+local function init_load_indentor()
 
--- local get_line = function (line_num)
--- 	return vim.fn.getline(line_num)
--- end
-
-local function logic()
+	local buffer_num = vim.api.nvim_get_current_buf() -- current buffer number
 	local loc = vim.api.nvim_buf_line_count(buffer_num)
-	local current_line_num, current_line_content, whitespace
-	local next_line_num = current_line_num + 1
+	local current_line_num = 1
+	local current_line_content, whitespace, whitespace_t
 	local stack_tab = 0
 	local stack_space = 0
 	local space_list = {}
+
 	if loc == 1 then
 		current_line_num = 0
-		next_line_num = 1
 	end
 
-	for line_num = current_line_num, next_line_num do
-		current_line_content = get_lines(buffer_num, line_num, line_num+1)
+	for line_num = current_line_num, loc do
+		current_line_content = vim.fn.getline(line_num)
 		whitespace = whitespace_type(current_line_content)
-		type = whitespace.type
+		whitespace_t = whitespace['type']
 
-		if whitespace ~= 'blank' then
-			if type == "tab" then
+		if whitespace_t ~= 'blank' then
+			if whitespace_t == "tab" then
 				stack_tab = stack_tab + 1
 			else
 				stack_space = stack_space + 1
 				space_list[#space_list+1] = whitespace.no_of_space
 			end
 		end
+		if stack_space >= 5 or stack_tab >= 5 then
+			break
+		end
+	end
+
+	local indent_length = vim.g.penvim_indentor_length
+	local tab_set = false
+	local space_set = false
+
+	-- set tab
+	if stack_tab > stack_space then
+		vim.opt.softtabstop = indent_length
+		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+		vim.opt.tabstop = indent_length     -- spaces per tab
+		vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
+		vim.opt.autoindent = true           -- maintain indent of current line
+		tab_set = true
+	end
+
+	-- set space
+	if stack_space > stack_tab then
+		-- TODO
+		local space_length = math.max(unpack(space_list))
+		space_set = true
+	end
+
+	if not tab_set or not space_set then
+		-- use default
+		local indent_type = vim.g.penvim_indentor_type   -- default auto,  auto|space|tab
+
+		if indent_type == "tab" then
+			vim.opt.softtabstop = indent_length
+			vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+			vim.opt.tabstop = indent_length     -- spaces per tab
+			vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
+			vim.opt.autoindent = true           -- maintain indent of current line
+		end
+		if indent_type == "space" then
+			-- TODO
+			return -- to ignore error
+		end
 	end
 
 end
+
+
+function M.load_indentor()
+	-- TODO...
+	init_load_indentor()
+end
+
 
 return M
 

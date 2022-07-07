@@ -115,10 +115,10 @@ function M.setup(options)
 			if options.indentor.enable ~= nil then
 				vim.g.penvim_indentor_enable = options.indentor.enable
 			end
-			if options.indentor.lenght ~=nil then
+			if options.indentor.indent_length ~=nil then
 				vim.g.penvim_indentor_length = options.indentor.indent_length
 			end
-			if options.indentor.indent ~=nil then
+			if options.indentor.indent_type ~=nil then
 				vim.g.penvim_indentor_indent = options.indentor.indent_type
 			end
 		end
