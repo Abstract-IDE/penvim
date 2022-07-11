@@ -11,9 +11,7 @@ local function whitespace_type (line)
 
 	local whitespace = line:match("^%s*"):len()
 	if whitespace == 0 then
-		return {
-			type = "blank",
-		}
+		return { type = "blank", }
 	end
 
 	local tabspace = line:match("^%\t*"):len()
@@ -128,8 +126,8 @@ local function init_load_indentor()
 	local tab_set = false
 	local space_set = false
 
-	-- set tab
 	if stack_tab > stack_space then
+		-- set tab
 		-- TODO:
 		vim.opt.softtabstop = indent_length
 		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
@@ -137,10 +135,8 @@ local function init_load_indentor()
 		vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
 		vim.opt.autoindent = true           -- maintain indent of current line
 		tab_set = true
-	end
-
-	-- set space
-	if stack_space > stack_tab then
+	else
+		-- set space
 		-- TODO
 		-- local space_length = math.max(unpack(space_list))
 		space_set = true
