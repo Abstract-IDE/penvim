@@ -3,7 +3,7 @@
   <h3 align="center">PenVim</h3>
 
   <p align="center">
-    Project's Root Directory and Documents Indentation detector with project based config loader
+    project's root directory and documents indentation detector with project based config loader
     <br/>
     <br/>
     <br/>
@@ -38,15 +38,63 @@
 
 This plugin (Penvim) has 4 purposes:
 1. change current working directory to project's root directory.
-2. load config defined in project's root directory
-3. detect indentation of Source Code and set indentation related config according to detected indentation (Working on it...)
-4. set option according to Language's Standard Style Guide (Working on it...)
+2. detect indentation of Document (Source Code) and set indentation related config according to detected indentation
+3. load config defined in project's root directory
+4. set options according to Language's Standard Style Guide (not implemented yet...)
+
+
+## Getting Started
+Install PenVim using your favorite package manager.
+
+
+### Prerequisites
+* neovim >= 0.7
+
+
+### Installation
+
+using ```vim-plug```
+```lua
+Plug 'Abstract-IDE/penvim'
+```
+or using packer.nvim
+```lua
+use {'Abstract-IDE/penvim'}
+```
+
+
+## Setup
+
+```lua
+require("penvim").setup() -- use defaults
+```
+#### Full Configuration
+```lua
+require("penvim").setup({
+	rooter = {
+		enable = true, -- enable/disable rooter
+		patterns = {'.__nvim__.lua', '.git', 'node_modules'}
+	},
+	indentor = {
+		enable = true, -- enable/disable indentor
+		indent_length = 4, -- tab indent width
+		accuracy = 5, -- positive integer. higher the number, the more accurate result (but affects the startup time)
+		disable_types = {
+			'help','dashboard','dashpreview','NvimTree','vista','sagahover', 'terminal',
+		},
+	},
+	project_env = {
+		enable = true, -- enable/disable project_env
+		config_name = '.__nvim__.lua' -- config file name
+	},
+})
+```
 
 
 ## Examples :
 <details>
 	<summary>
-		load config defined in project's root directory
+		sample, config defined in project's root directory
 	</summary>
 
 ```lua
@@ -77,48 +125,8 @@ return {
 </details>
 
 
-## Getting Started
-Install PenVim using your favorite package manager.
-
-
-### Prerequisites
-* neovim 0.6+
-
-
-### Installation
-
-using ```vim-plug```
-```lua
-Plug 'shaeinst/penvim'
-```
-or using packer.nvim
-```lua
-use {'shaeinst/penvim'}
-```
-
-
-## Setup
-
-```lua
-require("penvim").setup() -- use defaults
-```
-#### Full Configuration
-```lua
-require("penvim").setup({
-	project_env = {
-		enable = true,
-		config_name = '.__nvim__.lua'
-	},
-	rooter = {
-		enable = true,
-		patterns = {'.__nvim__.lua', '.git', 'node_modules', '.sln', '.svn'}
-	},
-})
-```
-
-
 ## To-Do
-* Implement indentor (indentaion detector)
+* testing
 * implement to set option according to Language's Standard Style Guide
 * optimize code
 
