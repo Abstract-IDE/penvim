@@ -82,7 +82,7 @@ function M.setup(options)
 
 	--
 	local filetype = vim.bo.filetype
-	local bufftype = vim.bo.bufftype
+	local buftype = vim.bo.buftype
 
 
 
@@ -194,7 +194,7 @@ function M.setup(options)
 
 		-- don't load indentor if filetype is passed in options
 		for _, ft in pairs(disable_types) do
-			if ft==filetype or ft==bufftype then
+			if ft==filetype or ft==buftype then
                                 return
                         end
 		end
