@@ -7,7 +7,7 @@ useful links:
 local M = {}
 
 
-local function whitespace_type (line)
+local function whitespace_type(line)
 
 	local whitespace = line:match("^%s*"):len()
 	if whitespace == 0 then
@@ -70,7 +70,6 @@ local function init_load_indentor()
 	local space_list = {}
 	local accuracy = vim.g.penvim_indentor_accuracy
 
-
 	if loc == 1 then
 		current_line_num = 0
 	end
@@ -104,7 +103,7 @@ local function init_load_indentor()
 	-- Comment Operations
 	Block_comment = block_comment(current_line_content)
 
-	-- if line is not a block comment then it must be lingle line comment
+	-- if line is not a block comment then it must be single line comment
 	if not Block_comment then
 		current_line_num = current_line_num + 1
 		goto continue_loop
@@ -118,8 +117,8 @@ local function init_load_indentor()
 
 	-- if Block Comment then Operation until Right pair of comment is found
 	if Block_comment then
-		current_line_num = current_line_num + 1
 		for _=current_line_num, loc do
+                        current_line_num = current_line_num + 1
 			current_line_content = vim.fn.getline(current_line_num)
 			if match_pattern(current_line_content, Block_comment) then
 				current_line_num = current_line_num + 1
@@ -134,28 +133,29 @@ local function init_load_indentor()
 	local tab_set = false
 	local space_set = false
 
+        vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
+        vim.opt.autoindent = true           -- maintain indent of current line
+
 	if stack_tab > stack_space then
 		-- set tab
-		vim.opt.softtabstop = indent_length -- Number of spaces that a <Tab> counts for while performing editing operations, like inserting a <Tab> or using <BS>.
-		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 		vim.opt.tabstop = indent_length     -- spaces per tab
-		vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
-		vim.opt.autoindent = true           -- maintain indent of current line
+		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+		vim.opt.softtabstop = indent_length -- Number of spaces that a <Tab> counts for while performing editing operations, like inserting a <Tab> or using <BS>.
 		tab_set = true
 	end
 	if stack_space > stack_tab then
 		-- set space
 		local space_length
-		if #space_list <= 1 then space_length = space_list[1]
-		else space_length = math.min(unpack(space_list))
+		if #space_list <= 1 then
+                        space_length = space_list[1]
+		else
+                        space_length = math.min(unpack(space_list))
 		end
 
 		vim.opt.tabstop = space_length     -- Size of a hard tabstop (ts).
 		vim.opt.shiftwidth = space_length  -- Size of an indentation (sw).
-		vim.opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
-		vim.opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
-		vim.opt.autoindent = true    -- Copy indent from current line when starting a new line.
-		vim.opt.smarttab = true      -- Inserts blanks on a <Tab> key (as per sw, ts and sts).
+		vim.opt.softtabstop = 0            -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+		vim.opt.expandtab = true           -- Always uses spaces instead of tab characters (et).
 		space_set = true
 	end
 
@@ -165,8 +165,6 @@ local function init_load_indentor()
 
 		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 		vim.opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
-		vim.opt.autoindent = true    -- Copy indent from current line when starting a new line.
-		vim.opt.smarttab = true      -- Inserts blanks on a <Tab> key (as per sw, ts and sts).
 
 		if indent_type == "tab" then
 			-- TAB
@@ -176,8 +174,8 @@ local function init_load_indentor()
 			vim.opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
 			vim.opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
 		else
+			-- TODO --
 			-- auto
-			--TODO
 			return -- to ignore error
 		end
 	end

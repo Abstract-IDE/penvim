@@ -54,7 +54,7 @@ local default = {
 		indent_length = 4, -- tab indent width or no of spaces in case of indent_type
 		indent_type = "auto", -- if file is new or it doesn't have any indentation (auto, tab, space)
 		accuracy = 5, -- positive integer. higher the number, the more accurate result (but affects the startup time)
-		disable_filetypes = {
+		disable_types = {
 			'help','dashboard','dashpreview','NvimTree','vista','sagahover'
 		},
 	},
@@ -78,10 +78,11 @@ function M.setup(options)
 	vim.g.penvim_indentor_length = default.indentor.indent_length
 	vim.g.penvim_indentor_indent = default.indentor.indent_type
 	vim.g.penvim_indentor_accuracy = default.indentor.accuracy
-	local disable_filetypes = default.indentor.disable_filetypes
+	local disable_types = default.indentor.disable_types
 
 	--
 	local filetype = vim.bo.filetype
+	local bufftype = vim.bo.bufftype
 
 
 
@@ -133,13 +134,13 @@ function M.setup(options)
 			if options.indentor.accuracy ~=nil then
 				vim.g.penvim_indentor_accuracy = options.indentor.accuracy
 			end
-			if options.indentor.disable_filetypes ~=nil then
-				local default_disable_filetypes = default.indentor.disable_filetypes
-				local option_disable_filetypes = options.indentor.disable_filetypes
-				for _, value in pairs(option_disable_filetypes) do
-					default_disable_filetypes[#default_disable_filetypes+1] = value
+			if options.indentor.disable_types ~=nil then
+				local default_disable_types = default.indentor.disable_types
+				local option_disable_types = options.indentor.disable_types
+				for _, value in pairs(option_disable_types) do
+					default_disable_types[#default_disable_types+1] = value
 				end
-				disable_filetypes = default_disable_filetypes
+				disable_types = default_disable_types
 			end
 		end
 	end
@@ -192,8 +193,10 @@ function M.setup(options)
 	if vim.g.penvim_indentor_enable then
 
 		-- don't load indentor if filetype is passed in options
-		for _, ft in pairs(disable_filetypes) do
-			if ft == filetype then return end
+		for _, ft in pairs(disable_types) do
+			if ft==filetype or ft==bufftype then
+                                return
+                        end
 		end
 
 		vim.api.nvim_create_autocmd(
