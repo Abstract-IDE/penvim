@@ -32,6 +32,14 @@ end
 local function block_comment(line)
 	-- function to check if current line is the start of block comment
 
+	local white_space = " "
+	::loop::
+	local space = line:match("^%"..white_space)
+	if space == white_space then
+		white_space = white_space .. " "
+		goto loop
+	end
+
 	local c_style = line:match("^/%*") -- /*
 	local html_style = line:match("^<!%-%-") -- <!--
 	local python_style = line:match("^\"%\"%\"") or line:match("^\'%\'%\'") -- """
@@ -128,17 +136,26 @@ local function init_load_indentor()
 
 	if stack_tab > stack_space then
 		-- set tab
-		-- TODO:
-		vim.opt.softtabstop = indent_length
+		vim.opt.softtabstop = indent_length -- Number of spaces that a <Tab> counts for while performing editing operations, like inserting a <Tab> or using <BS>.
 		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 		vim.opt.tabstop = indent_length     -- spaces per tab
 		vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
 		vim.opt.autoindent = true           -- maintain indent of current line
 		tab_set = true
-	else
+	end
+	if stack_space > stack_tab then
 		-- set space
-		-- TODO
-		-- local space_length = math.max(unpack(space_list))
+		local space_length
+		if #space_list <= 1 then space_length = space_list[1]
+		else space_length = math.min(unpack(space_list))
+		end
+
+		vim.opt.tabstop = space_length     -- Size of a hard tabstop (ts).
+		vim.opt.shiftwidth = space_length  -- Size of an indentation (sw).
+		vim.opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+		vim.opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
+		vim.opt.autoindent = true    -- Copy indent from current line when starting a new line.
+		vim.opt.smarttab = true      -- Inserts blanks on a <Tab> key (as per sw, ts and sts).
 		space_set = true
 	end
 
@@ -146,18 +163,22 @@ local function init_load_indentor()
 		-- use default
 		local indent_type = vim.g.penvim_indentor_type   -- default auto,  auto|space|tab
 
+		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+		vim.opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
+		vim.opt.autoindent = true    -- Copy indent from current line when starting a new line.
+		vim.opt.smarttab = true      -- Inserts blanks on a <Tab> key (as per sw, ts and sts).
+
 		if indent_type == "tab" then
+			-- TAB
 			vim.opt.softtabstop = indent_length
-			vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
-			vim.opt.tabstop = indent_length     -- spaces per tab
-			vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
-			vim.opt.autoindent = true           -- maintain indent of current line
 		elseif indent_type == "space" then
-			-- TODO
-			return -- to ignore error
+			-- SPACE
+			vim.opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+			vim.opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
 		else
 			-- auto
 			--TODO
+			return -- to ignore error
 		end
 	end
 end
