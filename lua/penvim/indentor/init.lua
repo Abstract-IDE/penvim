@@ -1,5 +1,9 @@
 
 local M = {}
+local g = vim.g
+local fn = vim.fn
+local api = vim.api
+local opt = vim.opt
 
 
 local function whitespace_type(line)
@@ -59,14 +63,14 @@ end
 
 local function init_load_indentor()
 
-	local buffer_num = vim.api.nvim_get_current_buf() -- current buffer number
-	local loc = vim.api.nvim_buf_line_count(buffer_num) -- total lines of code in current file
+	local buffer_num = api.nvim_get_current_buf() -- current buffer number
+	local loc = api.nvim_buf_line_count(buffer_num) -- total lines of code in current file
 	local current_line_num = 1
 	local current_line_content, whitespace, whitespace_t
 	local stack_tab = 0
 	local stack_space = 0
 	local space_list = {}
-	local accuracy = vim.g.penvim_indentor_accuracy
+	local accuracy = g.penvim_indentor_accuracy
 
 	if loc == 1 then
 		goto loop_end
@@ -78,7 +82,7 @@ local function init_load_indentor()
 		goto loop_end
 	end
 
-	current_line_content = vim.fn.getline(current_line_num)
+	current_line_content = fn.getline(current_line_num)
 
         -----------------------------------------------
         -- operations for BLOCK COMMENT
@@ -105,7 +109,7 @@ local function init_load_indentor()
 	if Block_comment then
 		for _=current_line_num, loc do
                         current_line_num = current_line_num + 1
-			current_line_content = vim.fn.getline(current_line_num)
+			current_line_content = fn.getline(current_line_num)
 			if match_pattern(current_line_content, Block_comment) then
 				current_line_num = current_line_num + 1
 				goto loop_continue
@@ -139,19 +143,19 @@ local function init_load_indentor()
         -----------------------------------------------
 	::loop_end::
 
-	local indent_length = vim.g.penvim_indentor_length
+	local indent_length = g.penvim_indentor_length
 	local tab_set = false
 	local space_set = false
 
-        vim.opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
-        vim.opt.autoindent = true           -- maintain indent of current line
+        opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
+        opt.autoindent = true           -- maintain indent of current line
 
 	if stack_tab > stack_space then
 		-- set tab
-		vim.opt.tabstop = indent_length     -- spaces per tab
-		vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
-		vim.opt.softtabstop = indent_length -- Number of spaces that a <Tab> counts for while performing editing operations, like inserting a <Tab> or using <BS>.
-		vim.opt.expandtab = false           -- Always uses spaces instead of tab characters (et).
+		opt.tabstop = indent_length     -- spaces per tab
+		opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+		opt.softtabstop = indent_length -- Number of spaces that a <Tab> counts for while performing editing operations, like inserting a <Tab> or using <BS>.
+		opt.expandtab = false           -- Always uses spaces instead of tab characters (et).
 		tab_set = true
 	end
 	if stack_space > stack_tab then
@@ -163,29 +167,29 @@ local function init_load_indentor()
                         space_length = math.min(unpack(space_list))
 		end
 
-		vim.opt.tabstop = space_length     -- Size of a hard tabstop (ts).
-		vim.opt.shiftwidth = space_length  -- Size of an indentation (sw).
-		vim.opt.softtabstop = 0            -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
-		vim.opt.expandtab = true           -- Always uses spaces instead of tab characters (et).
+		opt.tabstop = space_length     -- Size of a hard tabstop (ts).
+		opt.shiftwidth = space_length  -- Size of an indentation (sw).
+		opt.softtabstop = 0            -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+		opt.expandtab = true           -- Always uses spaces instead of tab characters (et).
 		space_set = true
 	end
 
         -- TODO
 	if not tab_set and not space_set then
 		-- use default
-		local indent_type = vim.g.penvim_indentor_type   -- default auto,  auto|space|tab
+		local indent_type = g.penvim_indentor_type   -- default auto,  auto|space|tab
 
 		if indent_type == "tab" then
 			-- TAB
-			vim.opt.softtabstop = indent_length
-			vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
-			vim.opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
+			opt.softtabstop = indent_length
+			opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+			opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
 		elseif indent_type == "space" then
 			-- SPACE
-			vim.opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
-			vim.opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
-			vim.opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
-			vim.opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
+			opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+			opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
+			opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+			opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
 		else
 			-- TODO --
 			-- auto
