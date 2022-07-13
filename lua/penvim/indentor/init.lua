@@ -66,13 +66,13 @@ local function init_load_indentor()
 	local accuracy = vim.g.penvim_indentor_accuracy
 
 	if loc == 1 then
-		goto end_loop
+		goto loop_end
 	end
 
-	::continue_loop::
+	::loop_continue::
 
 	if current_line_num > loc or stack_space > accuracy or stack_tab > accuracy then
-		goto end_loop
+		goto loop_end
 	end
 
 	current_line_content = vim.fn.getline(current_line_num)
@@ -89,7 +89,7 @@ local function init_load_indentor()
 	-- check if block comment exist on same single line
 	if match_pattern(current_line_content, Block_comment) then
 		current_line_num = current_line_num + 1
-		goto continue_loop
+		goto loop_continue
 	end
 
 	-- if Block Comment then Operation until Right pair of comment is found
@@ -99,7 +99,7 @@ local function init_load_indentor()
 			current_line_content = vim.fn.getline(current_line_num)
 			if match_pattern(current_line_content, Block_comment) then
 				current_line_num = current_line_num + 1
-				goto continue_loop
+				goto loop_continue
 			end
 		end
 	end
@@ -113,22 +113,22 @@ local function init_load_indentor()
 
 	if whitespace_t == "blank" then
 		current_line_num = current_line_num + 1
-		goto continue_loop
+		goto loop_continue
 	end
 	if whitespace_t == "tab" then
 		stack_tab = stack_tab + 1
 		current_line_num = current_line_num + 1
-		goto continue_loop
+		goto loop_continue
 	end
 	if whitespace_t == "space" then
 		stack_space = stack_space + 1
 		space_list[#space_list+1] = whitespace.no_of_space
 		current_line_num = current_line_num + 1
-		goto continue_loop
+		goto loop_continue
 	end
         -----------------------------------------------
 
-	::end_loop::
+	::loop_end::
 
 	local indent_length = vim.g.penvim_indentor_length
 	local tab_set = false
