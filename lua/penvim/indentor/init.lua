@@ -26,6 +26,7 @@ end
 
 local function block_comment(line)
 	-- function to check if current line is the start of block comment
+	-- and if yes then return its right pair
 
 	local white_space = " "
 	::loop::
@@ -37,13 +38,15 @@ local function block_comment(line)
 
 	local c_style = line:match("^/%*") -- /*
 	local html_style = line:match("^<!%-%-") -- <!--
-	local python_style = line:match("^\"%\"%\"") or line:match("^\'%\'%\'") -- """
-	local lua_style = line:match("^-%-%[%[") -- --[[  ]]
+	local python_style_double = line:match("^\"%\"%\"") -- """
+	local python_style_single = line:match("^\'%\'%\'") -- '''
+	local lua_style = line:match("^-%-%[=*%[") -- --[[  ]]
 
 	if c_style then return "*/$"
 	elseif html_style then return "%-%->$"
-	elseif lua_style then return "%]%]$"
-	elseif python_style then return "\"%\"%\"$"
+	elseif lua_style then return "%]=*%]$"
+	elseif python_style_double then return "\"%\"%\"$"
+	elseif python_style_single then return "\'%\'%\'$"
 	else return nil
 	end
 end
@@ -77,22 +80,28 @@ local function init_load_indentor()
 
 	current_line_content = vim.fn.getline(current_line_num)
 
+        -----------------------------------------------
         -- operations for BLOCK COMMENT
         -----------------------------------------------
 	Block_comment = block_comment(current_line_content)
 
-	-- if line is not a block comment handle to operation to whitespace
+	-- if line is not a block comment handle operation to whitespace
 	if not Block_comment then
 		goto whitespace
 	end
 
+	-- any block comment on same line have length of > 3 means bolck comment doesn't exist on same line
+	if #current_line_content < 4 then
+		goto loop_block
+	end
 	-- check if block comment exist on same single line
 	if match_pattern(current_line_content, Block_comment) then
 		current_line_num = current_line_num + 1
 		goto loop_continue
 	end
 
-	-- if Block Comment then Operation until Right pair of comment is found
+	::loop_block::
+	-- if Block Comment then Operate until Right pair of comment is found
 	if Block_comment then
 		for _=current_line_num, loc do
                         current_line_num = current_line_num + 1
@@ -105,6 +114,7 @@ local function init_load_indentor()
 	end
         -----------------------------------------------
 
+        -----------------------------------------------
         -- operations for WHITESPACE
         -----------------------------------------------
         ::whitespace::
@@ -127,7 +137,6 @@ local function init_load_indentor()
 		goto loop_continue
 	end
         -----------------------------------------------
-
 	::loop_end::
 
 	local indent_length = vim.g.penvim_indentor_length
