@@ -1,5 +1,8 @@
 
 local M={}
+local g = vim.g
+local api = vim.api
+local bo = vim.bo
 
 
 local default = {
@@ -66,23 +69,23 @@ function M.setup(options)
 	-- default options
 	---------------------------------------
 	-- project_env default config
-	vim.g.penvim_project_enable = default.project_env.enable
-	vim.g.penvim_project_config = default.project_env.config_name
+	g.penvim_project_enable = default.project_env.enable
+	g.penvim_project_config = default.project_env.config_name
 	-- langs default config
-	vim.g.penvim_langs_enable = default.langs.enable
+	g.penvim_langs_enable = default.langs.enable
 	-- rooter default config
-	vim.g.penvim_rooter_enable = default.rooter.enable
-	vim.g.penvim_rooter_patterns = default.rooter.patterns
+	g.penvim_rooter_enable = default.rooter.enable
+	g.penvim_rooter_patterns = default.rooter.patterns
 	-- indentor default config
-	vim.g.penvim_indentor_enable = default.indentor.enable
-	vim.g.penvim_indentor_length = default.indentor.indent_length
-	vim.g.penvim_indentor_indent = default.indentor.indent_type
-	vim.g.penvim_indentor_accuracy = default.indentor.accuracy
+	g.penvim_indentor_enable = default.indentor.enable
+	g.penvim_indentor_length = default.indentor.indent_length
+	g.penvim_indentor_indent = default.indentor.indent_type
+	g.penvim_indentor_accuracy = default.indentor.accuracy
 	local disable_types = default.indentor.disable_types
 
 	--
-	local filetype = vim.bo.filetype
-	local buftype = vim.bo.buftype
+	local filetype = bo.filetype
+	local buftype = bo.buftype
 
 
 	-- overide default options with user-defined options
@@ -91,22 +94,22 @@ function M.setup(options)
 		-- project_env
 		if options.project_env ~= nil then
 			if options.project_env.enable ~= nil then
-				vim.g.penvim_project_enable = options.project_env.enable
+				g.penvim_project_enable = options.project_env.enable
 			end
 			if options.project_env.config_name ~=nil then
-				vim.g.penvim_project_config = options.project_env.config_name
+				g.penvim_project_config = options.project_env.config_name
 			end
 		end
 
 		-- langs
 		if options.langs ~= nil and options.langs.enable ~= nil then
-			vim.g.penvim_langs_enable = options.langs.enable
+			g.penvim_langs_enable = options.langs.enable
 		end
 
 		-- rooter
 		if options.rooter ~= nil then
 			if options.rooter.enable ~= nil then
-				vim.g.penvim_rooter_enable = options.rooter.enable
+				g.penvim_rooter_enable = options.rooter.enable
 			end
 			if options.rooter.patterns ~= nil then
 				local default_pattern = default.rooter.patterns
@@ -115,23 +118,23 @@ function M.setup(options)
 				for _, value in pairs(option_pattern) do
 					default_pattern[#default_pattern+1] = value
 				end
-				vim.g.penvim_rooter_patterns = default_pattern
+				g.penvim_rooter_patterns = default_pattern
 			end
 		end
 
 		-- indentor
 		if options.indentor ~= nil then
 			if options.indentor.enable ~= nil then
-				vim.g.penvim_indentor_enable = options.indentor.enable
+				g.penvim_indentor_enable = options.indentor.enable
 			end
 			if options.indentor.indent_length ~=nil then
-				vim.g.penvim_indentor_length = options.indentor.indent_length
+				g.penvim_indentor_length = options.indentor.indent_length
 			end
 			if options.indentor.indent_type ~=nil then
-				vim.g.penvim_indentor_indent = options.indentor.indent_type
+				g.penvim_indentor_indent = options.indentor.indent_type
 			end
 			if options.indentor.accuracy ~=nil then
-				vim.g.penvim_indentor_accuracy = options.indentor.accuracy
+				g.penvim_indentor_accuracy = options.indentor.accuracy
 			end
 			if options.indentor.disable_types ~=nil then
 				local default_disable_types = default.indentor.disable_types
@@ -144,13 +147,13 @@ function M.setup(options)
 		end
 	end
 
-	local group = vim.api.nvim_create_augroup("PenvimAutoGroup", {clear=true})
+	local group = api.nvim_create_augroup("PenvimAutoGroup", {clear=true})
 
 	-- TODO:
 	-- language
 	---------------------------------------
-	if vim.g.penvim_langs_enable then
-		vim.api.nvim_create_autocmd(
+	if g.penvim_langs_enable then
+		api.nvim_create_autocmd(
 			"BufEnter",
 			{
 				pattern = "*",
@@ -162,8 +165,8 @@ function M.setup(options)
 
 	-- project environment
 	---------------------------------------
-	if vim.g.penvim_project_enable then
-		vim.api.nvim_create_autocmd(
+	if g.penvim_project_enable then
+		api.nvim_create_autocmd(
 			"BufEnter",
 			{
 				pattern = "*",
@@ -175,8 +178,8 @@ function M.setup(options)
 
 	-- rooter
 	---------------------------------------
-	if vim.g.penvim_rooter_enable then
-		vim.api.nvim_create_autocmd(
+	if g.penvim_rooter_enable then
+		api.nvim_create_autocmd(
 			"BufEnter",
 			{
 				pattern = "*",
@@ -189,7 +192,7 @@ function M.setup(options)
 	-- TODO:
 	-- indentor
 	---------------------------------------
-	if vim.g.penvim_indentor_enable then
+	if g.penvim_indentor_enable then
 
 		-- don't load indentor if filetype is passed in options
 		for _, ft in pairs(disable_types) do
@@ -198,7 +201,7 @@ function M.setup(options)
                         end
 		end
 
-		vim.api.nvim_create_autocmd(
+		api.nvim_create_autocmd(
 			"BufEnter",
 			{
 				pattern = "*",
