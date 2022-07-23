@@ -61,7 +61,7 @@ local function match_pattern(line, pattern)
 end
 
 
-local function init_load_indentor()
+function M.load_indentor()
 
 	local buffer_num = api.nvim_get_current_buf() -- current buffer number
 	local loc = api.nvim_buf_line_count(buffer_num) -- total lines of code in current file
@@ -84,12 +84,12 @@ local function init_load_indentor()
 
 	current_line_content = fn.getline(current_line_num)
 
-        -----------------------------------------------
-        -- operations for BLOCK COMMENT
-        -----------------------------------------------
+	-----------------------------------------------
+	-- operations for BLOCK COMMENT
+	-----------------------------------------------
 	Block_comment = block_comment(current_line_content)
 
-	-- if line is not a block comment handle operation to whitespace
+	-- if line is not a block comment, handle the operation to the whitespace
 	if not Block_comment then
 		goto whitespace
 	end
@@ -105,10 +105,10 @@ local function init_load_indentor()
 	end
 
 	::loop_block::
-	-- if Block Comment then Operate until Right pair of comment is found
+	-- if Block Comment, then operate until Right pair of comment is found
 	if Block_comment then
 		for _=current_line_num, loc do
-                        current_line_num = current_line_num + 1
+			current_line_num = current_line_num + 1
 			current_line_content = fn.getline(current_line_num)
 			if match_pattern(current_line_content, Block_comment) then
 				current_line_num = current_line_num + 1
@@ -116,12 +116,12 @@ local function init_load_indentor()
 			end
 		end
 	end
-        -----------------------------------------------
+	-----------------------------------------------
 
-        -----------------------------------------------
-        -- operations for WHITESPACE
-        -----------------------------------------------
-        ::whitespace::
+	-----------------------------------------------
+	-- operations for WHITESPACE
+	-----------------------------------------------
+	::whitespace::
 	whitespace = whitespace_type(current_line_content)
 	whitespace_t = whitespace['type']
 
@@ -140,15 +140,15 @@ local function init_load_indentor()
 		current_line_num = current_line_num + 1
 		goto loop_continue
 	end
-        -----------------------------------------------
+	-----------------------------------------------
 	::loop_end::
 
 	local indent_length = g.penvim_indentor_length
 	local tab_set = false
 	local space_set = false
 
-        opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
-        opt.autoindent = true           -- maintain indent of current line
+	opt.smarttab = true             -- <tab>/<BS> indent/dedent in leading whitespace
+	opt.autoindent = true           -- maintain indent of current line
 
 	if stack_tab > stack_space then
 		-- set tab
@@ -162,9 +162,9 @@ local function init_load_indentor()
 		-- set space
 		local space_length
 		if #space_list <= 1 then
-                        space_length = space_list[1]
+			space_length = space_list[1]
 		else
-                        space_length = math.min(unpack(space_list))
+			space_length = math.min(unpack(space_list))
 		end
 
 		opt.tabstop = space_length     -- Size of a hard tabstop (ts).
@@ -174,10 +174,9 @@ local function init_load_indentor()
 		space_set = true
 	end
 
-        -- TODO
 	if not tab_set and not space_set then
 		-- use default
-		local indent_type = g.penvim_indentor_type   -- default auto,  auto|space|tab
+		local indent_type = g.penvim_indentor_type -- default auto,  auto|space|tab
 
 		if indent_type == "tab" then
 			-- TAB
@@ -186,22 +185,16 @@ local function init_load_indentor()
 			opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
 		elseif indent_type == "space" then
 			-- SPACE
-			opt.softtabstop = 0 -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
-			opt.expandtab = true    -- Always uses spaces instead of tab characters (et).
+			opt.softtabstop = 0  -- Number of spaces a <Tab> counts for. When 0, featuer is off (sts).
+			opt.expandtab = true -- Always uses spaces instead of tab characters (et).
 			opt.shiftwidth = indent_length  -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 			opt.tabstop = indent_length     -- Size of a hard tabstop (ts).
 		else
 			-- TODO --
 			-- auto
-			return -- to ignore error
+			return
 		end
 	end
-end
-
-
-function M.load_indentor()
-	-- TODO...
-	init_load_indentor()
 end
 
 
